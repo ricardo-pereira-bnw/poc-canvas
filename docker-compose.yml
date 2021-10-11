@@ -1,0 +1,35 @@
+version: "3.1"
+services:
+  php:
+    image: ricardopedias/docker-project:php80
+    container_name: canvas
+    environment:
+      - WORKER_PATH=/application
+      - WORKER_FILE=worker.php
+    volumes:
+      - .:/application
+    ports:
+      - "8088:80"
+    networks:
+      - canvas-network
+  mysql:
+    image: ricardopedias/docker-project:mysql80
+    container_name: canvas-db
+    volumes:
+      - ~/.bnw/projects/canvas/storage/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=devel
+      - MYSQL_DATABASE=devel
+      - MYSQL_USER=devel
+      - MYSQL_PASSWORD=devel
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    ports:
+      - "8089:3306"
+    networks:
+      - canvas-network
+networks:
+  canvas-network:
+    driver: bridge
